@@ -122,9 +122,8 @@ public class HotThreadsMonitor {
             ThreadInfo info = threadMXBean.getThreadInfo(threadId, 0);
             reports.put(threadId, new ThreadReport(info, cpuTime));
         }
-        List<ThreadReport> list = Arrays.asList(reports.values().toArray(new ThreadReport[reports.size()]));
-        return sort(list, type);
-    }
+        return sort(new ArrayList(reports.values()), type);
+     }
 
     public List<ThreadReport> sort(List<ThreadReport> reports, final String type) {
         Collections.sort(reports, new Comparator<ThreadReport>() {
