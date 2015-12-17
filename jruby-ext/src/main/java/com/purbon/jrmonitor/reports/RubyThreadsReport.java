@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * A ThreadsReport object used to hold the hot threads information
  * Created by purbon on 12/12/15.
  */
 @JRubyClass(name = "Threads", parent = "Object")
@@ -22,23 +23,23 @@ public class RubyThreadsReport extends RubyObject {
     }
 
     /**
-     * Build a report with current Thread information
+     * Generate a report with current Thread information
      * @param context
      * @param self
-     * @return
+     * @param params An optional value to hold the properties as RubyHash
+     * @return A ruby hash with the hot threads information
      */
     @JRubyMethod(name = "generate" )
-    public static RubyHash generate(ThreadContext context, IRubyObject self, IRubyObject params) {
+    public static RubyHash generate(ThreadContext context, IRubyObject self, IRubyObject type) {
         Ruby runtime = context.runtime;
         RubyHash hash = new RubyHash(runtime);
 
-        Map<String, String> options = JRubyUtils.parseOptions(runtime, params);
-
+        String typeString = type.asJavaString();
         HotThreadsMonitor reporter = new HotThreadsMonitor();
-        List<HotThreadsMonitor.ThreadReport> reports = reporter.detect(options);
+        List<HotThreadsMonitor.ThreadReport> reports = reporter.detect(typeString);
 
         for(HotThreadsMonitor.ThreadReport report : reports) {
-             RubyHash reportHash = JRubyUtils.toRubyHash(runtime, report.toHash());
+            RubyHash reportHash = JRubyUtils.toRubyHash(runtime, report.toHash());
             hash.put(report.getThreadName(), reportHash);
         }
         return hash;
@@ -46,13 +47,13 @@ public class RubyThreadsReport extends RubyObject {
 
     @JRubyMethod(name = "generate" )
     public static RubyHash generate(ThreadContext context, IRubyObject self) {
-        return generate(context, self, new RubyHash(context.runtime));
+        return generate(context, self, context.runtime.newString("cpu"));
     }
     /**
-     * Return the report as string
+     * Generate a report with current Thread information
      * @param context
      * @param self
-     * @return
+     * @return A ruby hash with the hot threads information
      */
     @JRubyMethod(name = { "to_s" })
     public static RubyString to_string(ThreadContext context, IRubyObject self) {

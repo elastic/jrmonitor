@@ -13,7 +13,8 @@ import org.jruby.runtime.load.BasicLibraryService;
 import java.io.IOException;
 
 /**
- * Basic JVM monitoring class for threads
+ * Basic JVM monitoring class for Threads, System and memory, basically all
+ * metadata provided as MxBeans.
  * Created by purbon on 12/12/15.
  */
 public class JRMonitorService implements BasicLibraryService {

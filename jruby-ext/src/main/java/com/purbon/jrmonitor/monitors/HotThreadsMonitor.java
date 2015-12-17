@@ -41,23 +41,19 @@ public class HotThreadsMonitor {
             return map;
         }
 
-        public Long getCpuTime() {
-            return (Long)map.get(CPU_TIME);
-        }
-
         public String getThreadState() {
-            return (String)map.get(THREAD_STATE);
+            return (String) map.get(THREAD_STATE);
         }
 
         public String getThreadName() {
-            return (String)map.get(THREAD_NAME);
+            return (String) map.get(THREAD_NAME);
         }
 
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            int i=0;
-            for(String key : map.keySet()) {
+            int i = 0;
+            for (String key : map.keySet()) {
                 if (i > 0)
                     sb.append(",");
                 sb.append(key);
@@ -66,33 +62,54 @@ public class HotThreadsMonitor {
             }
             return sb.toString();
         }
+
+        public Long getWaitedTime() {
+            return (Long)map.get(WAITED_TIME);
+        }
+
+        public Long getBlockedTime() {
+            return (Long)map.get(BLOCKED_TIME);
+        }
+
+        public Long getCpuTime() {
+            return (Long) map.get(CPU_TIME);
+        }
+
+    }
+
+    private List<String> VALID_TYPES = new ArrayList<String>();
+
+    public HotThreadsMonitor() {
+        VALID_TYPES.add("cpu");
+        VALID_TYPES.add("wait");
+        VALID_TYPES.add("block");
     }
 
     /**
      * Return the current hot threads information as provided by the JVM
+     *
      * @return A list of ThreadReport including all selected threads
      */
     public List<ThreadReport> detect() {
-        return detect(new HashMap<String, String>());
+        return detect("cpu");
     }
 
     /**
      * Return the current hot threads information as provided by the JVM
-     * @param options Map<String, String> holding a set of options used to filter the selected information
+     *
+     * @param type String selected type for sorting the threads information
      * @return A list of ThreadReport including all selected threads
      */
-    public List<ThreadReport> detect(Map<String, String> options) {
+    public List<ThreadReport> detect(String type) {
+        if (!isValidType(type))
+            throw new IllegalArgumentException("Wrong search type");
+
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
         enableCpuTime(threadMXBean);
 
-        String selectThreads = "";
-         if (options.containsKey("select"))
-           selectThreads = options.get("select");
-
-
         Map<Long, ThreadReport> reports = new HashMap<Long, ThreadReport>();
 
-        for(long threadId : threadMXBean.getAllThreadIds()) {
+        for (long threadId : threadMXBean.getAllThreadIds()) {
             if (Thread.currentThread().getId() == threadId) {
                 continue;
             }
@@ -103,40 +120,31 @@ public class HotThreadsMonitor {
             }
 
             ThreadInfo info = threadMXBean.getThreadInfo(threadId, 0);
-            if (selectThreads.isEmpty() || info.getThreadState().toString().equalsIgnoreCase(selectThreads)) {
-                reports.put(threadId, new ThreadReport(info, cpuTime));
-            }
+            reports.put(threadId, new ThreadReport(info, cpuTime));
         }
         List<ThreadReport> list = Arrays.asList(reports.values().toArray(new ThreadReport[reports.size()]));
-        return sort(list);
+        return sort(list, type);
     }
 
-    public List<ThreadReport> sort(List<ThreadReport> reports) {
+    public List<ThreadReport> sort(List<ThreadReport> reports, final String type) {
         Collections.sort(reports, new Comparator<ThreadReport>() {
             public int compare(ThreadReport a, ThreadReport b) {
-
-                if (a.getCpuTime() > b.getCpuTime()) {
-                    return -1;
-                } else if (a.getCpuTime() < b.getCpuTime()) {
-                    return 1;
-                } else {
-                    return a.getThreadState().compareTo(b.getThreadState());
-                }
+               if ("block".equals(type)) {
+                   return (int) (b.getBlockedTime()-a.getBlockedTime());
+               } else if ("wait".equals(type)) {
+                   return (int) (b.getWaitedTime()-a.getWaitedTime());
+               } else {
+                   return (int) (b.getCpuTime()-a.getCpuTime());
+               }
             }
         });
         return reports;
     }
 
-    public String buildReport(Map<Long, ThreadReport> reports) {
-        StringBuilder sb = new StringBuilder();
-
-        for(ThreadReport report : reports.values()) {
-            sb.append(report);
-            sb.append("\n");
-        }
-
-        return sb.toString();
+    private boolean isValidType(String type) {
+        return VALID_TYPES.indexOf(type.toLowerCase()) != -1;
     }
+
 
     private void enableCpuTime(ThreadMXBean threadMXBean) {
         try {

@@ -34,53 +34,50 @@ describe JRMonitor::Report::Threads do
     end
   end
 
-  describe "#filter thread status" do
+  describe "#ordering" do
 
-    let(:options) do
-      {}
-    end
+    let(:type) { "cpu" }
+
     let(:threads) do
-      subject.generate(options)
+      subject.generate(type)
     end
 
-    context "when filtering waiting threads" do
-
-      let(:options) do
-        {select: :waiting}
+    it 'fetch values ordered by cpu.time' do
+      last_cpu_time = 0
+      threads.each_pair do |_, values|
+        current_cpu_time = values["cpu.time"]
+        expect(last_cpu_time).to be >= current_cpu_time if last_cpu_time != 0
+        last_cpu_time = current_cpu_time
       end
+    end
 
-      it 'fetch only selected threads' do
+    context "with block" do
+
+      let(:type) { "block" }
+
+      it 'fetch values ordered by blocked.time' do
+        last_time = 0
         threads.each_pair do |_, values|
-          expect(values['thread.state']).to eq("waiting")
-        end
-      end
-
-      context "if filtering with string key" do
-
-        let(:options) do
-          { "select" => "waiting" }
-        end
-
-        it 'fetch only selected threads' do
-          threads.each_pair do |_, values|
-            expect(values['thread.state']).to eq("waiting")
-          end
+          current_time = values["blocked.time"]
+          expect(last_time).to be >= current_time if last_time != 0
+          last_time = current_time
         end
       end
     end
 
-    context "when filtering running threads" do
-      let(:options) do
-        {select: :running}
-      end
+    context "with wait" do
 
-      it 'fetch only selected threads' do
+      let(:type) { "wait" }
+
+      it 'fetch values ordered by waited.time' do
+        last_time = 0
         threads.each_pair do |_, values|
-          expect(values['thread.state']).to eq("running")
+          current_time = values["waited.time"]
+          expect(last_time).to be >= current_time if last_time != 0
+          last_time = current_time
         end
       end
     end
-
 
   end
 end
