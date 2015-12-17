@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe JRMonitor::Report::Threads do
 
-  let(:threads) { subject.build }
+  let(:threads) { subject.generate }
 
   it 'pull running threads' do
     expect(threads.keys.count).to be > 0
@@ -40,7 +40,7 @@ describe JRMonitor::Report::Threads do
       {}
     end
     let(:threads) do
-      subject.build(options)
+      subject.generate(options)
     end
 
     context "when filtering waiting threads" do

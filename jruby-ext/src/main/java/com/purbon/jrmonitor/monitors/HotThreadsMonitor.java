@@ -6,10 +6,15 @@ import java.lang.management.ThreadMXBean;
 import java.util.*;
 
 /**
+ * Hot threads monitoring class. This class pulls information out of the JVM #
+ * provided beans and lest the different consumers query it.
  * Created by purbon on 12/12/15.
  */
-public class HotThreads {
+public class HotThreadsMonitor {
 
+    /**
+     * Placeholder for a given thread report
+     */
     public class ThreadReport {
 
         private static final String CPU_TIME = "cpu.time";
@@ -51,26 +56,31 @@ public class HotThreads {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append("name");
-            sb.append(",");
-            sb.append(map.get(THREAD_NAME));
-            sb.append(",");
-            sb.append("cpuTime");
-            sb.append(",");
-            sb.append(map.get(CPU_TIME));
-            sb.append(",");
-            sb.append("state");
-            sb.append(",");
-            sb.append(map.get(THREAD_STATE));
-            sb.append(",");
+            int i=0;
+            for(String key : map.keySet()) {
+                if (i > 0)
+                    sb.append(",");
+                sb.append(key);
+                sb.append(",");
+                sb.append(map.get(key));
+            }
             return sb.toString();
         }
     }
 
+    /**
+     * Return the current hot threads information as provided by the JVM
+     * @return A list of ThreadReport including all selected threads
+     */
     public List<ThreadReport> detect() {
         return detect(new HashMap<String, String>());
     }
 
+    /**
+     * Return the current hot threads information as provided by the JVM
+     * @param options Map<String, String> holding a set of options used to filter the selected information
+     * @return A list of ThreadReport including all selected threads
+     */
     public List<ThreadReport> detect(Map<String, String> options) {
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
         enableCpuTime(threadMXBean);
