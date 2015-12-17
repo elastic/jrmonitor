@@ -1,4 +1,4 @@
-package com.purbon.jruby.monitor;
+package com.purbon.jrmonitor.monitors;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
@@ -29,7 +29,7 @@ public class HotThreads {
             map.put(WAITED_COUNT, info.getWaitedCount());
             map.put(WAITED_TIME, info.getWaitedTime());
             map.put(THREAD_NAME, info.getThreadName());
-            map.put(THREAD_STATE, info.getThreadState().name());
+            map.put(THREAD_STATE, info.getThreadState().name().toLowerCase());
         }
 
         public Map<String, Object> toHash() {
@@ -68,8 +68,17 @@ public class HotThreads {
     }
 
     public List<ThreadReport> detect() {
+        return detect(new HashMap<String, String>());
+    }
+
+    public List<ThreadReport> detect(Map<String, String> options) {
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
         enableCpuTime(threadMXBean);
+
+        String selectThreads = "";
+         if (options.containsKey("select"))
+           selectThreads = options.get("select");
+
 
         Map<Long, ThreadReport> reports = new HashMap<Long, ThreadReport>();
 
@@ -84,7 +93,9 @@ public class HotThreads {
             }
 
             ThreadInfo info = threadMXBean.getThreadInfo(threadId, 0);
-            reports.put(threadId, new ThreadReport(info, cpuTime));
+            if (selectThreads.isEmpty() || info.getThreadState().toString().equalsIgnoreCase(selectThreads)) {
+                reports.put(threadId, new ThreadReport(info, cpuTime));
+            }
         }
         List<ThreadReport> list = Arrays.asList(reports.values().toArray(new ThreadReport[reports.size()]));
         return sort(list);

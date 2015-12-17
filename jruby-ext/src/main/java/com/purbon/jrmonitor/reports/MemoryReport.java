@@ -1,5 +1,7 @@
-import com.purbon.jruby.monitor.JRubyUtils;
-import com.purbon.jruby.monitor.Memory;
+package com.purbon.jrmonitor.reports;
+
+import com.purbon.jrmonitor.JRubyUtils;
+import com.purbon.jrmonitor.monitors.Memory;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyHash;

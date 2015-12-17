@@ -1,3 +1,8 @@
+package com.purbon.jrmonitor;
+
+import com.purbon.jrmonitor.reports.MemoryReport;
+import com.purbon.jrmonitor.reports.SystemReport;
+import com.purbon.jrmonitor.reports.ThreadsReport;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyModule;

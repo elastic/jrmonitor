@@ -1,12 +1,11 @@
-import com.purbon.jruby.monitor.*;
-import com.purbon.jruby.monitor.System;
+package com.purbon.jrmonitor.reports;
+
+import com.purbon.jrmonitor.JRubyUtils;
+import com.purbon.jrmonitor.monitors.System;
 import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by purbon on 12/12/15.

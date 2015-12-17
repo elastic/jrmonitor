@@ -2,7 +2,7 @@ require "java"
 $CLASSPATH << File.join(File.dirname(__FILE__), "..", "jruby-ext", "target", "classes")
 
 require "monitoring/version"
-require "JRMonitor"
+require "com/purbon/jrmonitor/JRMonitor"
 
 module JRMonitor
 
@@ -19,3 +19,8 @@ module JRMonitor
   end
 end
 
+if $0 == __FILE__
+  puts "--"
+  puts JRMonitor.threads.build(select: :waiting).each{ |k,v| puts v["thread.state"] }
+  puts "--"
+end

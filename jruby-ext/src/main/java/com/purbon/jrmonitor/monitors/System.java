@@ -1,4 +1,4 @@
-package com.purbon.jruby.monitor;
+package com.purbon.jrmonitor.monitors;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
