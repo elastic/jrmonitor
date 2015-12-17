@@ -6,9 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * System information as returned by the different JVM's MxBeans
  * Created by purbon on 13/12/15.
  */
-public class System {
+public class SystemMonitor {
 
     public class Report {
 
@@ -36,14 +37,11 @@ public class System {
         }
 
         public String getOsVersion() {
-            return (String)map.get(OS_VERSION);
+            return (String) map.get(OS_VERSION);
         }
-
-
-
     }
 
-    public System.Report detect() {
+    public Report detect() {
         OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
         return new Report(os);
 

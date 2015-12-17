@@ -1,7 +1,7 @@
 package com.purbon.jrmonitor.reports;
 
 import com.purbon.jrmonitor.JRubyUtils;
-import com.purbon.jrmonitor.monitors.System;
+import com.purbon.jrmonitor.monitors.SystemMonitor;
 import org.jruby.*;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
@@ -22,12 +22,12 @@ import org.jruby.runtime.builtin.IRubyObject;
      * Build a report with current System information
      * @param context
      * @param self
-     * @return
+     * @return a RubyHash with the current system report
      */
-    @JRubyMethod(module = true, name = { "build" })
-    public static RubyHash build(ThreadContext context, IRubyObject self) {
+    @JRubyMethod(module = true, name = { "generate" })
+    public static RubyHash generate(ThreadContext context, IRubyObject self) {
         Ruby runtime = context.runtime;
-        System monitor  = new System();
+        SystemMonitor monitor  = new SystemMonitor();
         return JRubyUtils.toRubyHash(runtime, monitor.detect().toHash());
     }
 }
