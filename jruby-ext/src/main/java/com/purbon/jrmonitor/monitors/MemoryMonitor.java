@@ -8,13 +8,22 @@ import java.util.Map;
 /**
  * Created by purbon on 13/12/15.
  */
-public class Memory {
+public class MemoryMonitor {
 
     public enum Type {
         All, Heap, NonHeap
     }
 
     public class Report {
+
+        private static final String USAGE_INIT = "usage.init";
+        private static final String USAGE_COMMITTED = "usage.committed";
+        private static final String USAGE_USED = "usage.used";
+        private static final String USAGE_MAX = "usage.max";
+        private static final String PEAK_INIT = "peak.init";
+        private static final String PEAK_COMMITTED = "peak.committed";
+        private static final String PEAK_USED = "peak.used";
+        private static final String PEAK_MAX = "peak.max";
 
         private Map<String, Map<String, Object>> heapMap = new HashMap<String, Map<String, Object>>();
         private Map<String, Map<String, Object>> nonHeapMap = new HashMap<String, Map<String, Object>>();
@@ -35,29 +44,29 @@ public class Memory {
 
         public void addUsage(MemoryType type, MemoryUsage usage) {
             if (type == MemoryType.HEAP) {
-                heapMap.get(getCurrentName()).put("usage.init", usage.getInit());
-                heapMap.get(getCurrentName()).put("usage.committed", usage.getCommitted());
-                heapMap.get(getCurrentName()).put("usage.used", usage.getUsed());
-                heapMap.get(getCurrentName()).put("usage.max", usage.getMax());
+                heapMap.get(getCurrentName()).put(USAGE_INIT, usage.getInit());
+                heapMap.get(getCurrentName()).put(USAGE_COMMITTED, usage.getCommitted());
+                heapMap.get(getCurrentName()).put(USAGE_USED, usage.getUsed());
+                heapMap.get(getCurrentName()).put(USAGE_MAX, usage.getMax());
             } else {
-                nonHeapMap.get(currentName).put("usage.init", usage.getInit());
-                nonHeapMap.get(currentName).put("usage.committed", usage.getCommitted());
-                nonHeapMap.get(currentName).put("usage.used", usage.getUsed());
-                nonHeapMap.get(currentName).put("usage.max", usage.getMax());
+                nonHeapMap.get(currentName).put(USAGE_INIT, usage.getInit());
+                nonHeapMap.get(currentName).put(USAGE_COMMITTED, usage.getCommitted());
+                nonHeapMap.get(currentName).put(USAGE_USED, usage.getUsed());
+                nonHeapMap.get(currentName).put(USAGE_MAX, usage.getMax());
             }
         }
 
         public void addPeak(MemoryType type, MemoryUsage peak) {
             if (type == MemoryType.HEAP) {
-                heapMap.get(getCurrentName()).put("peak.init", peak.getInit());
-                heapMap.get(getCurrentName()).put("peak.committed", peak.getCommitted());
-                heapMap.get(getCurrentName()).put("peak.used", peak.getUsed());
-                heapMap.get(getCurrentName()).put("peak.max", peak.getMax());
+                heapMap.get(getCurrentName()).put(PEAK_INIT, peak.getInit());
+                heapMap.get(getCurrentName()).put(PEAK_COMMITTED, peak.getCommitted());
+                heapMap.get(getCurrentName()).put(PEAK_USED, peak.getUsed());
+                heapMap.get(getCurrentName()).put(PEAK_MAX, peak.getMax());
             } else {
-                nonHeapMap.get(currentName).put("peak.init", peak.getInit());
-                nonHeapMap.get(currentName).put("peak.committed", peak.getCommitted());
-                nonHeapMap.get(currentName).put("peak.used", peak.getUsed());
-                nonHeapMap.get(currentName).put("peak.max", peak.getMax());
+                nonHeapMap.get(currentName).put(PEAK_INIT, peak.getInit());
+                nonHeapMap.get(currentName).put(PEAK_COMMITTED, peak.getCommitted());
+                nonHeapMap.get(currentName).put(PEAK_USED, peak.getUsed());
+                nonHeapMap.get(currentName).put(PEAK_MAX, peak.getMax());
             }
         }
 
@@ -86,7 +95,7 @@ public class Memory {
      }
 
 
-    public Memory.Report detect(Type selectType) {
+    public Report detect(Type selectType) {
         List<MemoryPoolMXBean> beans = ManagementFactory.getMemoryPoolMXBeans();
 
         Report report = new Report();

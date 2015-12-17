@@ -1,7 +1,8 @@
 package com.purbon.jrmonitor.reports;
 
 import com.purbon.jrmonitor.JRubyUtils;
-import com.purbon.jrmonitor.monitors.Memory;
+import com.purbon.jrmonitor.monitors.MemoryMonitor;
+import com.purbon.jrmonitor.monitors.MemoryMonitor.Report;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyHash;
@@ -22,8 +23,11 @@ public class RubyMemoryReport extends RubyObject {
     private static final String NON_HEAP = "non_heap";
     private static final String HEAP = "heap";
 
+    private static MemoryMonitor monitor = null;
+
     public RubyMemoryReport(Ruby ruby, RubyClass metaclass) {
         super(ruby, metaclass);
+        this.monitor = new MemoryMonitor();
     }
 
     /**
@@ -32,42 +36,36 @@ public class RubyMemoryReport extends RubyObject {
      * @param self
      * @return
      */
-    @JRubyMethod(module = true, name = { "build" })
-    public static RubyHash build(ThreadContext context, IRubyObject self) {
+    @JRubyMethod(name = "generate" )
+    public static RubyHash generate(ThreadContext context, IRubyObject self) {
         Ruby runtime = context.runtime;
-        Memory monitor  = new Memory();
 
-        Memory.Report report = monitor.detect(Memory.Type.All);
+        MemoryMonitor.Report report = generateReport(MemoryMonitor.Type.All);
         RubyHash container = new RubyHash(runtime);
         container.put(HEAP,     toHash(runtime, report.getHeapAsHash()));
         container.put(NON_HEAP, toHash(runtime, report.getNonHeapAsHash()));
         return container;
     }
 
-    @JRubyMethod(module = true, name = { "build_heap" })
-    public static RubyHash buildHeap(ThreadContext context, IRubyObject self) {
+    @JRubyMethod(name = "generate_with_heap")
+    public static RubyHash generateHeap(ThreadContext context, IRubyObject self) {
         Ruby runtime = context.runtime;
-        Memory monitor  = new Memory();
 
-        Memory.Report report = monitor.detect(Memory.Type.Heap);
-
-        RubyHash container = new RubyHash(runtime);
-        container.put(HEAP, toHash(runtime, report.getHeapAsHash()));
-
-        return container;
+        MemoryMonitor.Report report = generateReport(MemoryMonitor.Type.Heap);
+        return toHash(runtime, report.getHeapAsHash());
     }
 
-    @JRubyMethod(module = true, name = { "build_nonheap" })
-    public static RubyHash buildNonHeap(ThreadContext context, IRubyObject self) {
+    @JRubyMethod(name =  "generate_with_nonheap" )
+    public static RubyHash generateNonHeap(ThreadContext context, IRubyObject self) {
         Ruby runtime = context.runtime;
-        Memory monitor  = new Memory();
 
-        Memory.Report report = monitor.detect(Memory.Type.NonHeap);
+        MemoryMonitor.Report report = generateReport(MemoryMonitor.Type.NonHeap);
+        return toHash(runtime, report.getNonHeapAsHash());
+    }
 
-        RubyHash container = new RubyHash(runtime);
-        container.put(NON_HEAP, toHash(runtime, report.getNonHeapAsHash()));
-
-        return container;
+    private static MemoryMonitor.Report generateReport(MemoryMonitor.Type type) {
+        MemoryMonitor.Report report = monitor.detect(type);
+        return report;
     }
 
     private static RubyHash toHash(Ruby runtime, Map<String, Map<String, Object>> info) {
