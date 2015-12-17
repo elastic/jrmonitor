@@ -7,20 +7,14 @@ require "com/purbon/jrmonitor/JRMonitor"
 module JRMonitor
 
   def self.threads
-    ThreadsReport.new
+    Report::Threads.new
   end
 
   def self.system
-    SystemReport.new
+    Report::System.new
   end
 
   def self.memory
-    MemoryReport.new
+    Report::Memory.new
   end
-end
-
-if $0 == __FILE__
-  puts "--"
-  puts JRMonitor.threads.build(select: :waiting).each{ |k,v| puts v["thread.state"] }
-  puts "--"
 end

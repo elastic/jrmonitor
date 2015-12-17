@@ -15,10 +15,10 @@ import java.util.Map;
 /**
  * Created by purbon on 12/12/15.
  */
-@JRubyClass(name = "ThreadsReport", parent = "Object")
-public class ThreadsReport extends RubyObject {
+@JRubyClass(name = "Threads", parent = "Object")
+public class RubyThreadsReport extends RubyObject {
 
-    public ThreadsReport(Ruby ruby, RubyClass metaclass) {
+    public RubyThreadsReport(Ruby ruby, RubyClass metaclass) {
         super(ruby, metaclass);
     }
 

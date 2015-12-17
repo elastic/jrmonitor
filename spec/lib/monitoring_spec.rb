@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe JRMonitor::ThreadsReport do
+describe JRMonitor::Report::Threads do
 
   let(:threads) { subject.build }
 

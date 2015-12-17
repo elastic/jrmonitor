@@ -1,8 +1,8 @@
 package com.purbon.jrmonitor;
 
-import com.purbon.jrmonitor.reports.MemoryReport;
-import com.purbon.jrmonitor.reports.SystemReport;
-import com.purbon.jrmonitor.reports.ThreadsReport;
+import com.purbon.jrmonitor.reports.RubyMemoryReport;
+import com.purbon.jrmonitor.reports.RubySystemReport;
+import com.purbon.jrmonitor.reports.RubyThreadsReport;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyModule;
@@ -20,29 +20,30 @@ public class JRMonitorService implements BasicLibraryService {
 
     public boolean basicLoad(Ruby ruby) throws IOException {
 
-        RubyModule rootModule = ruby.defineModule("JRMonitor");
+        RubyModule rootModule    = ruby.defineModule("JRMonitor");
+        RubyModule reportsModule = ruby.defineModuleUnder("Report", rootModule);
 
-        RubyClass reportClass = ruby.defineClassUnder("ThreadsReport", ruby.getObject(), new ObjectAllocator() {
+        RubyClass reportClass = ruby.defineClassUnder("Threads", ruby.getObject(), new ObjectAllocator() {
             public IRubyObject allocate(Ruby ruby, RubyClass rubyClass) {
-                return new ThreadsReport(ruby, rubyClass);
+                return new RubyThreadsReport(ruby, rubyClass);
             }
-        }, rootModule);
+        }, reportsModule);
 
-        reportClass.defineAnnotatedMethods(ThreadsReport.class);
+        reportClass.defineAnnotatedMethods(RubyThreadsReport.class);
 
-        RubyClass systemClass = ruby.defineClassUnder("SystemReport", ruby.getObject(), new ObjectAllocator() {
+        RubyClass systemClass = ruby.defineClassUnder("System", ruby.getObject(), new ObjectAllocator() {
             public IRubyObject allocate(Ruby ruby, RubyClass rubyClass) {
-                return new SystemReport(ruby, rubyClass);
+                return new RubySystemReport(ruby, rubyClass);
             }
-        }, rootModule);
-        systemClass.defineAnnotatedMethods(SystemReport.class);
+        }, reportsModule);
+        systemClass.defineAnnotatedMethods(RubySystemReport.class);
 
-        RubyClass memoryClass = ruby.defineClassUnder("MemoryReport", ruby.getObject(), new ObjectAllocator() {
+        RubyClass memoryClass = ruby.defineClassUnder("Memory", ruby.getObject(), new ObjectAllocator() {
             public IRubyObject allocate(Ruby ruby, RubyClass rubyClass) {
-                return new MemoryReport(ruby, rubyClass);
+                return new RubyMemoryReport(ruby, rubyClass);
             }
-        }, rootModule);
-        memoryClass.defineAnnotatedMethods(MemoryReport.class);
+        }, reportsModule);
+        memoryClass.defineAnnotatedMethods(RubyMemoryReport.class);
 
 
         return true;

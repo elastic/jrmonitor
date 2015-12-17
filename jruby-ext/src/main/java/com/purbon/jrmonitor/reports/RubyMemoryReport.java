@@ -6,6 +6,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyHash;
 import org.jruby.RubyObject;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -15,12 +16,13 @@ import java.util.Map;
 /**
  * Created by purbon on 12/12/15.
  */
-public class MemoryReport extends RubyObject {
+@JRubyClass(name="Memory")
+public class RubyMemoryReport extends RubyObject {
 
     private static final String NON_HEAP = "non_heap";
     private static final String HEAP = "heap";
 
-    public MemoryReport(Ruby ruby, RubyClass metaclass) {
+    public RubyMemoryReport(Ruby ruby, RubyClass metaclass) {
         super(ruby, metaclass);
     }
 
