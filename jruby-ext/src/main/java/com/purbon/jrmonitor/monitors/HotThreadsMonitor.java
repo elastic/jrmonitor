@@ -1,5 +1,7 @@
 package com.purbon.jrmonitor.monitors;
 
+import org.jruby.RubyProcess;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
@@ -24,6 +26,7 @@ public class HotThreadsMonitor {
         private static final String WAITED_TIME = "waited.time";
         private static final String THREAD_NAME = "thread.name";
         private static final String THREAD_STATE = "thread.state";
+        private static final String THREAD_STACKTRACE = "thread.stacktrace";
 
         private Map<String, Object> map = new HashMap<String, Object>();
 
@@ -35,6 +38,15 @@ public class HotThreadsMonitor {
             map.put(WAITED_TIME, info.getWaitedTime());
             map.put(THREAD_NAME, info.getThreadName());
             map.put(THREAD_STATE, info.getThreadState().name().toLowerCase());
+            map.put(THREAD_STACKTRACE, stackTraceAsString(info.getStackTrace()));
+        }
+
+        private List<String> stackTraceAsString(StackTraceElement [] elements) {
+            List<String> lines = new ArrayList<String>();
+            for(int i=0; i < elements.length; i++) {
+                  lines.add(elements[i].toString());
+            }
+            return lines;
         }
 
         public Map<String, Object> toHash() {
@@ -119,7 +131,7 @@ public class HotThreadsMonitor {
                 continue;
             }
 
-            ThreadInfo info = threadMXBean.getThreadInfo(threadId, 0);
+            ThreadInfo info = threadMXBean.getThreadInfo(threadId, 3);
             reports.put(threadId, new ThreadReport(info, cpuTime));
         }
         return sort(new ArrayList(reports.values()), type);

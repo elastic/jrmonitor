@@ -34,6 +34,13 @@ describe JRMonitor::Report::Threads do
     end
   end
 
+  it "fetched the stack traces" do
+    threads.each_pair do |key, values|
+      next if 'Signal Dispatcher' == key
+      expect(values["thread.stacktrace"].count).to be > 0
+    end
+  end
+
   describe "#ordering" do
 
     let(:type) { "cpu" }
