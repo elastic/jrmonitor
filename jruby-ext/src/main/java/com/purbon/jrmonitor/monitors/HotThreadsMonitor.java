@@ -1,7 +1,5 @@
 package com.purbon.jrmonitor.monitors;
 
-import org.jruby.RubyProcess;
-
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
@@ -13,6 +11,9 @@ import java.util.*;
  * Created by purbon on 12/12/15.
  */
 public class HotThreadsMonitor {
+
+    private static final String ORDERED_BY = "ordered_by";
+    private static final String STACKTRACE_SIZE = "stacktrace_size";
 
     /**
      * Placeholder for a given thread report
@@ -103,18 +104,29 @@ public class HotThreadsMonitor {
      * @return A list of ThreadReport including all selected threads
      */
     public List<ThreadReport> detect() {
-        return detect("cpu");
+        Map<String, String> options = new HashMap<String, String>();
+        options.put(ORDERED_BY, "cpu");
+        return detect(options);
     }
 
     /**
      * Return the current hot threads information as provided by the JVM
      *
-     * @param type String selected type for sorting the threads information
+     * @param options Set of options to narrow this method functionality.
      * @return A list of ThreadReport including all selected threads
      */
-    public List<ThreadReport> detect(String type) {
-        if (!isValidType(type))
-            throw new IllegalArgumentException("Wrong search type");
+    public List<ThreadReport> detect(Map<String, String> options) {
+        String type = "cpu";
+        if (options.containsKey(ORDERED_BY)) {
+            type = options.get(ORDERED_BY);
+            if (!isValidType(type))
+                throw new IllegalArgumentException("Wrong search type");
+        }
+
+        int threadInfoMaxDepth = 3;
+        if (options.containsKey(STACKTRACE_SIZE)) {
+            threadInfoMaxDepth = Integer.valueOf(options.get(STACKTRACE_SIZE));
+        }
 
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
         enableCpuTime(threadMXBean);
@@ -130,8 +142,7 @@ public class HotThreadsMonitor {
             if (cpuTime == -1) {
                 continue;
             }
-
-            ThreadInfo info = threadMXBean.getThreadInfo(threadId, 3);
+            ThreadInfo info = threadMXBean.getThreadInfo(threadId, threadInfoMaxDepth);
             reports.put(threadId, new ThreadReport(info, cpuTime));
         }
         return sort(new ArrayList(reports.values()), type);

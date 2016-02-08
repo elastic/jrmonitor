@@ -41,12 +41,27 @@ describe JRMonitor::Report::Threads do
     end
   end
 
+  context "with options filtering" do
+
+    let(:stacktrace_size) { 4 }
+    let(:threads) do
+      subject.generate(:stacktrace_size => stacktrace_size )
+    end
+
+    it "fetches N stack straces for each thread" do
+      threads.each_pair do |key, values|
+        next if ['Signal Dispatcher', 'Reference Handler'].include?(key)
+        expect(values["thread.stacktrace"].count).to eq(stacktrace_size)
+      end
+    end
+  end
+
   describe "#ordering" do
 
-    let(:type) { "cpu" }
+    let(:ordered_by) { "cpu" }
 
     let(:threads) do
-      subject.generate(type)
+      subject.generate(:ordered_by => ordered_by)
     end
 
     it 'fetch values ordered by cpu.time' do

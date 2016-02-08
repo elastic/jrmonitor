@@ -8,6 +8,7 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,17 +27,18 @@ public class RubyThreadsReport extends RubyObject {
      * Generate a report with current Thread information
      * @param context
      * @param self
-     * @param params An optional value to hold the properties as RubyHash
+     * @param rubyOptions An optional value to hold the properties as RubyHash
      * @return A ruby hash with the hot threads information
      */
     @JRubyMethod(name = "generate" )
-    public static RubyHash generate(ThreadContext context, IRubyObject self, IRubyObject type) {
+    public static RubyHash generate(ThreadContext context, IRubyObject self, IRubyObject rubyOptions) {
         Ruby runtime = context.runtime;
         RubyHash hash = new RubyHash(runtime);
 
-        String typeString = type.asJavaString();
+        Map<String, String> options = JRubyUtils.parseOptions(runtime, rubyOptions);
+
         HotThreadsMonitor reporter = new HotThreadsMonitor();
-        List<HotThreadsMonitor.ThreadReport> reports = reporter.detect(typeString);
+        List<HotThreadsMonitor.ThreadReport> reports = reporter.detect(options);
 
         for(HotThreadsMonitor.ThreadReport report : reports) {
             RubyHash reportHash = JRubyUtils.toRubyHash(runtime, report.toHash());
@@ -47,7 +49,9 @@ public class RubyThreadsReport extends RubyObject {
 
     @JRubyMethod(name = "generate" )
     public static RubyHash generate(ThreadContext context, IRubyObject self) {
-        return generate(context, self, context.runtime.newString("cpu"));
+        RubyHash options = RubyHash.newHash(context.runtime);
+        options.put("order_by", "cpu");
+        return generate(context, self, options);
     }
     /**
      * Generate a report with current Thread information
