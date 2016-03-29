@@ -143,7 +143,13 @@ public class HotThreadsMonitor {
                 continue;
             }
             ThreadInfo info = threadMXBean.getThreadInfo(threadId, threadInfoMaxDepth);
-            reports.put(threadId, new ThreadReport(info, cpuTime));
+            if (info != null) {
+                /**
+                 * Thread ID must exist and be alive, otherwise the threads just
+                 * died in the meanwhile and could be ignored.
+                 */
+                reports.put(threadId, new ThreadReport(info, cpuTime));
+            }
         }
         return sort(new ArrayList(reports.values()), type);
      }
