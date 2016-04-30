@@ -5,7 +5,7 @@ jdk:
   - oraclejdk8
   - openjdk6
 rvm:
-  - jruby-1.17.25
+  - jruby-1.7.25
 before_install: gem install bundler -v 1.10.6
 before_script:
  - bundle exec rake build:extension
