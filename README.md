@@ -1,6 +1,9 @@
-# Jruby::Monitoring
+# JRuby::Monitoring
 
 Work in progress gem to expose the JVM internal monitoring capabilities for the jruby environment, this makes monitoring and managing a jruby app more easy and exciting.
+
+[![Build Status](https://travis-ci.org/purbon/jrmonitor.svg?branch=master)](https://travis-ci.org/purbon/jrmonitor)
+
 ## Installation
 
 Add this line to your application's Gemfile:
