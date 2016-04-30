@@ -1,4 +1,13 @@
 language: ruby
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - oraclejdk8
+  - openjdk6
 rvm:
-  - 2.1.3
+  - jruby-1.17.25
 before_install: gem install bundler -v 1.10.6
+before_script:
+ - bundle exec rake build:extension
+script: 
+ - bundle exec rake spec
