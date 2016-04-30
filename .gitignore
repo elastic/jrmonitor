@@ -1,3 +1,5 @@
+jruby-ext/target/
+run_test.sh
 /.bundle/
 /.yardoc
 /Gemfile.lock
