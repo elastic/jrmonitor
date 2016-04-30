@@ -1,3 +1,5 @@
+.project
+.buildpath
 jruby-ext/target/
 run_test.sh
 /.bundle/
