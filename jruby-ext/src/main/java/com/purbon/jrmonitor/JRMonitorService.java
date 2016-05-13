@@ -1,6 +1,7 @@
 package com.purbon.jrmonitor;
 
 import com.purbon.jrmonitor.reports.RubyMemoryReport;
+import com.purbon.jrmonitor.reports.RubyProcessReport;
 import com.purbon.jrmonitor.reports.RubySystemReport;
 import com.purbon.jrmonitor.reports.RubyThreadsReport;
 import org.jruby.Ruby;
@@ -46,6 +47,14 @@ public class JRMonitorService implements BasicLibraryService {
         }, reportsModule);
         memoryClass.defineAnnotatedMethods(RubyMemoryReport.class);
 
+        RubyClass processClass = ruby.defineClassUnder("Process", ruby.getObject(), new ObjectAllocator() {
+            @Override
+            public IRubyObject allocate(Ruby ruby, RubyClass rubyClass) {
+                return new RubyProcessReport(ruby, rubyClass);
+            }
+        }, reportsModule);
+
+        processClass.defineAnnotatedMethods(RubyProcessReport.class);
 
         return true;
     }
