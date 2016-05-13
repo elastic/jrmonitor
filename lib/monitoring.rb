@@ -17,4 +17,8 @@ module JRMonitor
   def self.memory
     Report::Memory.new
   end
+
+  def self.process
+    Report::Processd.new
+  end
 end
