@@ -19,6 +19,6 @@ module JRMonitor
   end
 
   def self.process
-    Report::Processd.new
+    Report::Process.new
   end
 end

@@ -17,27 +17,49 @@ public class ProcessMonitor {
     private static final MBeanServer platformMxBean = ManagementFactory.getPlatformMBeanServer();
 
     public class Report {
+        private long memTotalVirtualInBytes = -1;
+        private short cpuSystemPercent = -1;
+        private short cpuProcessPercent = -1;
+        private long cpuMillisTotal = -1;
+        private boolean isUnix;
+        private long openFds = -1;
+        private long maxFds = -1;
+
         private Map<String, Object> map = new HashMap<>();
 
         public Report() {
-            if (osMxBean instanceof UnixOperatingSystemMXBean) {
+            this.isUnix = osMxBean instanceof UnixOperatingSystemMXBean;
+
+            // Defaults are -1
+            if (this.isUnix) {
                 UnixOperatingSystemMXBean unixOsBean = (UnixOperatingSystemMXBean) osMxBean;;
-                map.put("open_file_descriptors", unixOsBean.getOpenFileDescriptorCount());
-                map.put("max_file_descriptors", unixOsBean.getMaxFileDescriptorCount());
 
-                Map<String, Object> cpuMap = new HashMap<>();
-                map.put("cpu", cpuMap);
-                cpuMap.put("total_in_millis", unixOsBean.getProcessCpuTime());
-                cpuMap.put("process_percent", scaleLoadToPercent(unixOsBean.getProcessCpuLoad()));
-                cpuMap.put("system_percent", scaleLoadToPercent(unixOsBean.getSystemCpuLoad()));
+                this.openFds = unixOsBean.getOpenFileDescriptorCount();
+                this.maxFds =  unixOsBean.getMaxFileDescriptorCount();
 
-                Map<String, Object> memoryMap = new HashMap<>();
-                map.put("mem", memoryMap);
-                memoryMap.put("total_virtual_in_bytes", unixOsBean.getCommittedVirtualMemorySize());
+                this.cpuMillisTotal = unixOsBean.getProcessCpuTime();
+                this.cpuProcessPercent = scaleLoadToPercent(unixOsBean.getProcessCpuLoad());
+                this.cpuSystemPercent = scaleLoadToPercent(unixOsBean.getSystemCpuLoad());
+
+                this.memTotalVirtualInBytes = unixOsBean.getCommittedVirtualMemorySize();
             }
         }
 
         public Map<String, Object> toHash() {
+            map.put("open_file_descriptors", this.openFds);
+            map.put("max_file_descriptors", this.maxFds);
+            map.put("is_unix", this.isUnix);
+
+            Map<String, Object> cpuMap = new HashMap<>();
+            map.put("cpu", cpuMap);
+            cpuMap.put("total_in_millis", this.cpuMillisTotal);
+            cpuMap.put("process_percent", this.cpuProcessPercent);
+            cpuMap.put("system_percent", this.cpuSystemPercent);
+
+            Map<String, Object> memoryMap = new HashMap<>();
+            map.put("mem", memoryMap);
+            memoryMap.put("total_virtual_in_bytes", this.memTotalVirtualInBytes);
+
             return map;
         }
 
