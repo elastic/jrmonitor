@@ -6,13 +6,13 @@ require 'monitoring/version'
 Gem::Specification.new do |spec|
   spec.name          = "jruby-monitoring"
   spec.version       = JRMonitor::VERSION
-  spec.authors       = ["Pere Urbon-Bayes"]
-  spec.email         = ["pere.urbon@gmail.com"]
+  spec.authors       = ["Pere Urbon-Bayes", "Elastic"]
+  spec.email         = ["pere.urbon@gmail.com", "info@elastic.co"]
 
   spec.summary       = %q{JVM Platform MXBeans wrapper used for monitoring.}
   spec.description   = %q{This gems allows you to access in a Ruby friendly way the internal JVM monitoring tools for things like System, Threads and Memory information}
-  spec.homepage      = "http://www.purbon.com"
-  spec.license       = "MIT"
+  spec.homepage      = "http://www.elastic.co/guide/en/logstash/current/index.html"
+  spec.license       = "Apache License (2.0)"
 
   spec.files         = Dir.glob(["jruby-monitoring.gemspec", "lib/**/*.rb", "spec/**/*.rb", "jruby-ext/target/classes/**/*.class"])
   spec.bindir        = "exe"
