@@ -1,7 +1,6 @@
 require "java"
 $CLASSPATH << File.join(File.dirname(__FILE__), "..", "jruby-ext", "target", "classes")
 
-require "monitoring/version"
 require "com/purbon/jrmonitor/JRMonitor"
 
 module JRMonitor
