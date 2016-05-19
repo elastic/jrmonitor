@@ -158,11 +158,11 @@ public class HotThreadsMonitor {
         Collections.sort(reports, new Comparator<ThreadReport>() {
             public int compare(ThreadReport a, ThreadReport b) {
                if ("block".equals(type)) {
-                   return (int) (b.getBlockedTime()-a.getBlockedTime());
+                   return Long.compare(b.getBlockedTime(), a.getBlockedTime());
                } else if ("wait".equals(type)) {
-                   return (int) (b.getWaitedTime()-a.getWaitedTime());
+                   return Long.compare(b.getWaitedTime(), a.getWaitedTime());
                } else {
-                   return (int) (b.getCpuTime()-a.getCpuTime());
+                   return Long.compare(b.getCpuTime(), a.getCpuTime());
                }
             }
         });
