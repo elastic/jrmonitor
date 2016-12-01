@@ -2,71 +2,127 @@ package com.purbon.jrmonitor.monitors;
 
 import com.sun.management.UnixOperatingSystemMXBean;
 
-import javax.management.MBeanServer;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by andrewvc on 5/12/16.
  */
 public class ProcessMonitor {
     private static final OperatingSystemMXBean osMxBean = ManagementFactory.getOperatingSystemMXBean();
-    private static final MBeanServer platformMxBean = ManagementFactory.getPlatformMBeanServer();
+
+    class Reporter {
+        public Long getOpenFileDescriptorCount() {
+            return Long.valueOf(-1);
+        }
+        public Long getMaxFileDescriptorCount() {
+            return Long.valueOf(-1);
+        }
+        public Long getProcessCpuTime() {
+            return Long.valueOf(-1);
+        }
+        public double getProcessCpuLoad() {
+            return Long.valueOf(-1);
+        }
+        public double getSystemCpuLoad() {
+            return Long.valueOf(-1);
+        }
+
+        public Long getCommittedVirtualMemorySize() {
+            return Long.valueOf(-1);
+        }
+    }
+
+    class UnixReporter extends Reporter {
+        private final UnixOperatingSystemMXBean osMxBean;
+
+        public UnixReporter(UnixOperatingSystemMXBean osMxBean) {
+            this.osMxBean = osMxBean;
+        }
+
+        public Long getOpenFileDescriptorCount() {
+            try {
+                return this.osMxBean.getOpenFileDescriptorCount();
+            } catch(Throwable e) {
+                return -1L;
+            }
+        }
+        public Long getMaxFileDescriptorCount() {
+            try {
+                return this.osMxBean.getMaxFileDescriptorCount();
+            } catch(Throwable e) {
+                return -1L;
+            }
+        }
+        public Long getProcessCpuTime() {
+            try {
+                return this.osMxBean.getProcessCpuTime();
+            } catch(Throwable e) {
+                return -1L;
+            }
+        }
+        public double getProcessCpuLoad() {
+            try {
+                return this.osMxBean.getProcessCpuLoad();
+            } catch(Throwable e) {
+                return -1L;
+            }
+        }
+        public double getSystemCpuLoad() {
+            try {
+                return this.osMxBean.getSystemCpuLoad();
+            } catch(Throwable e) {
+                return -1L;
+            }
+        }
+
+        public Long getCommittedVirtualMemorySize() {
+            try {
+                return this.osMxBean.getCommittedVirtualMemorySize();
+            } catch(Throwable e) {
+                return -1L;
+            }
+        }
+    }
 
     public class Report {
-        private long memTotalVirtualInBytes = -1;
-        private short cpuSystemPercent = -1;
-        private short cpuProcessPercent = -1;
-        private long cpuMillisTotal = -1;
-        private boolean isUnix;
-        private long openFds = -1;
-        private long maxFds = -1;
+        private final OperatingSystemMXBean osMxBean = ManagementFactory.getOperatingSystemMXBean();
+        private final Reporter reporter;
 
         private Map<String, Object> map = new HashMap<>();
 
         public Report() {
-            this.isUnix = osMxBean instanceof UnixOperatingSystemMXBean;
+            this.reporter = getReporter();
+        }
 
-            // Defaults are -1
-            if (this.isUnix) {
-                UnixOperatingSystemMXBean unixOsBean = (UnixOperatingSystemMXBean) osMxBean;;
-
-                this.openFds = unixOsBean.getOpenFileDescriptorCount();
-                this.maxFds =  unixOsBean.getMaxFileDescriptorCount();
-
-                this.cpuMillisTotal = unixOsBean.getProcessCpuTime();
-                this.cpuProcessPercent = scaleLoadToPercent(unixOsBean.getProcessCpuLoad());
-                this.cpuSystemPercent = scaleLoadToPercent(unixOsBean.getSystemCpuLoad());
-
-                this.memTotalVirtualInBytes = unixOsBean.getCommittedVirtualMemorySize();
-            }
+        private Reporter getReporter() {
+            if(isUnix())
+                return new UnixReporter(((UnixOperatingSystemMXBean) this.osMxBean));
+            else return new Reporter();
         }
 
         public Map<String, Object> toHash() {
-            map.put("open_file_descriptors", this.openFds);
-            map.put("max_file_descriptors", this.maxFds);
-            map.put("is_unix", this.isUnix);
+            map.put("open_file_descriptors", this.reporter.getOpenFileDescriptorCount());
+            map.put("max_file_descriptors", this.reporter.getMaxFileDescriptorCount());
+            map.put("is_unix", isUnix());
 
             Map<String, Object> cpuMap = new HashMap<>();
             map.put("cpu", cpuMap);
-            cpuMap.put("total_in_millis", this.cpuMillisTotal);
-            cpuMap.put("process_percent", this.cpuProcessPercent);
-            cpuMap.put("system_percent", this.cpuSystemPercent);
+            cpuMap.put("total_in_millis", this.reporter.getProcessCpuTime());
+            cpuMap.put("process_percent", scaleLoadToPercent(this.reporter.getProcessCpuLoad()));
+            cpuMap.put("system_percent", scaleLoadToPercent(this.reporter.getSystemCpuLoad()));
 
             Map<String, Object> memoryMap = new HashMap<>();
             map.put("mem", memoryMap);
-            memoryMap.put("total_virtual_in_bytes", this.memTotalVirtualInBytes);
+            memoryMap.put("total_virtual_in_bytes", this.reporter.getCommittedVirtualMemorySize());
 
             return map;
         }
 
-        public short scaleLoadToPercent(double load) {
-            if (osMxBean instanceof UnixOperatingSystemMXBean) {
-                UnixOperatingSystemMXBean unixOsBean = (UnixOperatingSystemMXBean) osMxBean;
-
+        private short scaleLoadToPercent(double load) {
+            if (isUnix()) {
                 if (load >= 0) {
                     return (short) (load * 100);
                 } else {
@@ -76,10 +132,13 @@ public class ProcessMonitor {
                 return -1;
             }
         }
+
+        private boolean isUnix() {
+            return this.osMxBean instanceof UnixOperatingSystemMXBean;
+        }
     }
 
     public Report detect() {
-        Report report = new Report();
-        return report;
+        return new Report();
     }
 }
